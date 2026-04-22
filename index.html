@@ -1,1 +1,431 @@
 
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.app { min-height: 600px; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.header { padding: 1.5rem 1.5rem 0; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-size: 18px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.5px; }
+.logo span { color: #1D9E75; }
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+.badge.pro { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+
+/* LANDING */
+.hero { padding: 3rem 1.5rem 2rem; text-align: center; }
+.hero h1 { font-size: 28px; font-weight: 500; color: var(--color-text-primary); line-height: 1.3; margin-bottom: 0.75rem; }
+.hero h1 em { color: #1D9E75; font-style: normal; }
+.hero p { font-size: 15px; color: var(--color-text-secondary); line-height: 1.6; max-width: 480px; margin: 0 auto 2rem; }
+
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 1.5rem 1.5rem; max-width: 600px; margin: 0 auto; }
+.plan { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; position: relative; }
+.plan.featured { border: 2px solid #1D9E75; }
+.plan-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #E1F5EE; color: #0F6E56; display: inline-block; margin-bottom: 12px; }
+.plan-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.plan-price { font-size: 26px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.plan-price span { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); }
+.plan-features { list-style: none; margin: 12px 0 16px; }
+.plan-features li { font-size: 13px; color: var(--color-text-secondary); padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+.plan-features li::before { content: ''; width: 14px; height: 14px; border-radius: 50%; background: #E1F5EE; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.plan-features li.check::before { background: #1D9E75; }
+.check-inner { width: 14px; height: 14px; background: #1D9E75; border-radius: 50%; }
+
+.btn { width: 100%; padding: 10px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); transition: all 0.15s; }
+.btn:hover { background: var(--color-background-tertiary); }
+.btn.primary { background: #1D9E75; color: white; border-color: #1D9E75; }
+.btn.primary:hover { background: #0F6E56; }
+.btn.sm { padding: 8px 16px; width: auto; font-size: 13px; }
+
+.demo-note { text-align: center; font-size: 12px; color: var(--color-text-tertiary); padding: 0 1.5rem 1.5rem; }
+
+/* APP */
+.app-layout { padding: 1rem 1.5rem; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 0; }
+.tab { padding: 8px 14px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+.tab.active { color: #1D9E75; border-bottom-color: #1D9E75; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.section-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+.tool-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: all 0.15s; }
+.tool-card:hover { border-color: #1D9E75; background: #E1F5EE08; }
+.tool-card.selected { border-color: #1D9E75; background: #E1F5EE; }
+.tool-icon { font-size: 16px; margin-bottom: 6px; }
+.tool-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+.tool-desc { font-size: 11px; color: var(--color-text-secondary); }
+
+.form-group { margin-bottom: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+label { font-size: 13px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
+input[type=text], textarea, select { width: 100%; font-size: 14px; }
+textarea { resize: vertical; min-height: 80px; }
+
+.result-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 1rem; min-height: 100px; font-size: 14px; color: var(--color-text-primary); line-height: 1.7; white-space: pre-wrap; }
+.result-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+.usage-bar-wrap { background: var(--color-background-secondary); border-radius: 4px; height: 6px; margin: 6px 0 4px; overflow: hidden; }
+.usage-bar { height: 100%; background: #1D9E75; border-radius: 4px; transition: width 0.3s; }
+.usage-label { font-size: 12px; color: var(--color-text-secondary); }
+
+.history-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; margin-bottom: 8px; }
+.history-meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.history-type { font-size: 12px; color: #0F6E56; background: #E1F5EE; padding: 2px 8px; border-radius: 20px; }
+.history-date { font-size: 12px; color: var(--color-text-tertiary); }
+.history-preview { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+
+.paywall-overlay { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; text-align: center; margin-top: 1rem; }
+.paywall-overlay h3 { font-size: 17px; font-weight: 500; margin-bottom: 8px; }
+.paywall-overlay p { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+
+.loading { display: flex; align-items: center; gap: 8px; color: var(--color-text-secondary); font-size: 14px; padding: 1rem 0; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; animation: pulse 1.2s ease-in-out infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center; }
+.stat-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.stat-label { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.copy-feedback { font-size: 12px; color: #1D9E75; margin-top: 4px; display: none; }
+</style>
+
+<div class="app">
+  <div id="screen-landing" class="screen active">
+    <div class="header">
+      <div class="logo">Treść<span>AI</span></div>
+    </div>
+    <div class="hero">
+      <h1>Profesjonalne treści dla Twojej firmy<br>w <em>10 sekund</em></h1>
+      <p>Posty na social media, opisy produktów, odpowiedzi na opinie Google, maile do klientów — wszystko generowane przez AI, po polsku, gotowe do użycia.</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">0 zł <span>/ miesiąc</span></div>
+        <ul class="plan-features">
+          <li class="check">5 generacji miesięcznie</li>
+          <li class="check">Posty na FB / IG</li>
+          <li>Opisy produktów</li>
+          <li>Odpowiedzi Google</li>
+          <li>Historia generacji</li>
+        </ul>
+        <button class="btn" onclick="enterApp('free')">Zacznij za darmo</button>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">Najpopularniejszy</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">49 zł <span>/ miesiąc</span></div>
+        <ul class="plan-features">
+          <li class="check">Nielimitowane generacje</li>
+          <li class="check">Posty na FB / IG</li>
+          <li class="check">Opisy produktów</li>
+          <li class="check">Odpowiedzi Google</li>
+          <li class="check">Historia generacji</li>
+        </ul>
+        <button class="btn primary" onclick="enterApp('pro')">Kup Pro — 49 zł/mies.</button>
+      </div>
+    </div>
+    <div class="demo-note">To jest interaktywne demo — kliknij żeby zobaczyć jak działa aplikacja</div>
+  </div>
+
+  <div id="screen-app" class="screen">
+    <div class="header">
+      <div class="logo">Treść<span>AI</span></div>
+      <span class="badge" id="plan-badge" onclick="goBack()">← Wróć</span>
+    </div>
+    <div class="app-layout">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('generator')">Generator</div>
+        <div class="tab" onclick="switchTab('historia')">Historia</div>
+        <div class="tab" onclick="switchTab('konto')">Konto</div>
+      </div>
+
+      <div id="tab-generator" class="tab-content active">
+        <div class="section-label">Wybierz typ treści</div>
+        <div class="tool-grid">
+          <div class="tool-card selected" onclick="selectTool(this,'post')" data-type="post">
+            <div class="tool-icon">📱</div>
+            <div class="tool-name">Post social media</div>
+            <div class="tool-desc">FB, Instagram, LinkedIn</div>
+          </div>
+          <div class="tool-card" onclick="selectTool(this,'opis')" data-type="opis">
+            <div class="tool-icon">🛍️</div>
+            <div class="tool-name">Opis produktu</div>
+            <div class="tool-desc">Sklep, oferta</div>
+          </div>
+          <div class="tool-card" onclick="selectTool(this,'opinia')" data-type="opinia">
+            <div class="tool-icon">⭐</div>
+            <div class="tool-name">Odpowiedź na opinię</div>
+            <div class="tool-desc">Google, Allegro</div>
+          </div>
+          <div class="tool-card" onclick="selectTool(this,'email')" data-type="email">
+            <div class="tool-icon">✉️</div>
+            <div class="tool-name">Mail do klienta</div>
+            <div class="tool-desc">Oferta, podziękowanie</div>
+          </div>
+        </div>
+
+        <div id="form-post">
+          <div class="form-row">
+            <div><label>Branża / rodzaj firmy</label><input type="text" id="p-branza" placeholder="np. kawiarnia, sklep odzieżowy" /></div>
+            <div><label>Ton komunikacji</label>
+              <select id="p-ton">
+                <option>Profesjonalny</option>
+                <option>Przyjazny i luźny</option>
+                <option>Energetyczny</option>
+                <option>Elegancki</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>O czym ma być post?</label><textarea id="p-temat" placeholder="np. promocja weekendowa -20% na wszystkie kawy, nowe menu letnie, otwarcie nowego lokalu..."></textarea></div>
+        </div>
+
+        <div id="form-opis" style="display:none">
+          <div class="form-row">
+            <div><label>Nazwa produktu</label><input type="text" id="o-nazwa" placeholder="np. Bluza z kapturem" /></div>
+            <div><label>Cena</label><input type="text" id="o-cena" placeholder="np. 149 zł" /></div>
+          </div>
+          <div class="form-group"><label>Cechy produktu</label><textarea id="o-cechy" placeholder="np. 100% bawełna, dostępna w 5 kolorach, idealna na chłodne dni..."></textarea></div>
+        </div>
+
+        <div id="form-opinia" style="display:none">
+          <div class="form-group"><label>Treść opinii klienta</label><textarea id="op-tresc" placeholder="np. Obsługa super, ale kawa była zimna. Ogólnie ok ale liczę na poprawę."></textarea></div>
+          <div class="form-group"><label>Ton odpowiedzi</label>
+            <select id="op-ton"><option>Przepraszający i empatyczny</option><option>Spokojny i rzeczowy</option><option>Ciepły i pozytywny</option></select>
+          </div>
+        </div>
+
+        <div id="form-email" style="display:none">
+          <div class="form-row">
+            <div><label>Cel maila</label>
+              <select id="e-cel"><option>Oferta handlowa</option><option>Podziękowanie za zakup</option><option>Przypomnienie o płatności</option><option>Odpowiedź na zapytanie</option></select>
+            </div>
+            <div><label>Imię odbiorcy</label><input type="text" id="e-imie" placeholder="np. Panie Marku" /></div>
+          </div>
+          <div class="form-group"><label>Dodatkowe informacje</label><textarea id="e-info" placeholder="np. klient kupił u nas zestaw mebli ogrodowych, chcemy zapytać o satysfakcję..."></textarea></div>
+        </div>
+
+        <div id="usage-wrap">
+          <div class="usage-label" id="usage-text">Użyto 2 z 5 generacji (plan Starter)</div>
+          <div class="usage-bar-wrap"><div class="usage-bar" id="usage-bar" style="width:40%"></div></div>
+        </div>
+
+        <button class="btn primary" style="margin-top:1rem" onclick="generate()">Generuj treść →</button>
+
+        <div id="result-area" style="display:none">
+          <div id="loading-indicator" class="loading">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <span>AI generuje treść...</span>
+          </div>
+          <div id="result-box" class="result-box" style="display:none"></div>
+          <div id="result-actions" class="result-actions" style="display:none">
+            <button class="btn sm" onclick="copyResult()">Kopiuj</button>
+            <button class="btn sm" onclick="generate()">Generuj ponownie</button>
+          </div>
+          <div class="copy-feedback" id="copy-feedback">Skopiowano!</div>
+          <div id="paywall-box" class="paywall-overlay" style="display:none">
+            <h3>Limit generacji wyczerpany</h3>
+            <p>W planie Starter możesz wygenerować 5 treści miesięcznie. Kup Pro żeby korzystać bez limitu.</p>
+            <button class="btn primary" onclick="goBack()">Kup plan Pro — 49 zł/mies.</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-historia" class="tab-content">
+        <div id="history-list"></div>
+      </div>
+
+      <div id="tab-konto" class="tab-content">
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-val" id="stat-gen">2</div><div class="stat-label">Generacji łącznie</div></div>
+          <div class="stat"><div class="stat-val" id="stat-plan-name">Starter</div><div class="stat-label">Aktywny plan</div></div>
+          <div class="stat"><div class="stat-val" id="stat-left">3</div><div class="stat-label">Pozostało</div></div>
+        </div>
+        <div id="upgrade-box" style="display:none">
+          <div class="paywall-overlay">
+            <h3>Przejdź na Pro</h3>
+            <p>Nielimitowane generacje, wszystkie funkcje, priorytetowa obsługa.</p>
+            <button class="btn primary" onclick="upgradeToPro()">Kup Pro — 49 zł/mies.</button>
+          </div>
+        </div>
+        <div id="pro-box" style="display:none">
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center;">
+            <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Plan Pro aktywny</div>
+            <div style="font-size:13px;color:var(--color-text-secondary);">Nielimitowane generacje. Odnawia się co miesiąc.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isPro = false;
+let usageCount = 2;
+const maxFree = 5;
+let selectedTool = 'post';
+let history = [
+  { type: 'Post social media', date: 'wczoraj', preview: 'Witajcie! Mamy dla Was wyjątkową propozycję na ten weekend...' },
+  { type: 'Opis produktu', date: '2 dni temu', preview: 'Odkryj komfort nowej kolekcji — bluzy wykonane z najwyższej...' }
+];
+
+function enterApp(plan) {
+  isPro = plan === 'pro';
+  document.getElementById('screen-landing').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  document.getElementById('plan-badge').textContent = isPro ? '✦ Pro' : 'Starter';
+  document.getElementById('plan-badge').className = isPro ? 'badge pro' : 'badge';
+  updateUsageUI();
+  renderHistory();
+  document.getElementById('upgrade-box').style.display = isPro ? 'none' : 'block';
+  document.getElementById('pro-box').style.display = isPro ? 'block' : 'none';
+  document.getElementById('stat-plan-name').textContent = isPro ? 'Pro' : 'Starter';
+}
+
+function goBack() {
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-landing').classList.add('active');
+  document.getElementById('result-area').style.display = 'none';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const tabs = ['generator','historia','konto'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function selectTool(el, type) {
+  document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTool = type;
+  ['post','opis','opinia','email'].forEach(t => {
+    document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
+  });
+  document.getElementById('result-area').style.display = 'none';
+}
+
+function updateUsageUI() {
+  const pct = isPro ? 100 : Math.min((usageCount / maxFree) * 100, 100);
+  document.getElementById('usage-bar').style.width = pct + '%';
+  document.getElementById('usage-text').textContent = isPro
+    ? 'Plan Pro — nielimitowane generacje'
+    : `Użyto ${usageCount} z ${maxFree} generacji (plan Starter)`;
+  document.getElementById('stat-gen').textContent = usageCount;
+  document.getElementById('stat-left').textContent = isPro ? '∞' : Math.max(0, maxFree - usageCount);
+}
+
+function getPrompt() {
+  if (selectedTool === 'post') {
+    const branza = document.getElementById('p-branza').value || 'firma';
+    const ton = document.getElementById('p-ton').value;
+    const temat = document.getElementById('p-temat').value || 'ogólna promocja';
+    return `Napisz angażujący post na Facebook/Instagram dla firmy z branży: ${branza}. Ton: ${ton}. Temat: ${temat}. Post po polsku, max 3 akapity, dodaj 3-5 emoji i 3-5 hashtagów na końcu.`;
+  } else if (selectedTool === 'opis') {
+    const nazwa = document.getElementById('o-nazwa').value || 'produkt';
+    const cena = document.getElementById('o-cena').value;
+    const cechy = document.getElementById('o-cechy').value || '';
+    return `Napisz profesjonalny opis produktu "${nazwa}"${cena ? ` w cenie ${cena}` : ''}. Cechy: ${cechy}. Opis po polsku, ok 100 słów, angażujący, skupiony na korzyściach dla klienta.`;
+  } else if (selectedTool === 'opinia') {
+    const tresc = document.getElementById('op-tresc').value || 'Dobra obsługa, polecam.';
+    const ton = document.getElementById('op-ton').value;
+    return `Napisz profesjonalną odpowiedź na opinię klienta w Google. Opinia: "${tresc}". Ton: ${ton}. Odpowiedź po polsku, ok 50-70 słów, naturalna, nie przesadnie formalna.`;
+  } else {
+    const cel = document.getElementById('e-cel').value;
+    const imie = document.getElementById('e-imie').value || 'Kliencie';
+    const info = document.getElementById('e-info').value || '';
+    return `Napisz profesjonalny email do klienta. Cel: ${cel}. Zwrot do odbiorcy: ${imie}. Kontekst: ${info}. Email po polsku, krótki i konkretny, z uprzejmym pozdrowieniem.`;
+  }
+}
+
+async function generate() {
+  if (!isPro && usageCount >= maxFree) {
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('loading-indicator').style.display = 'none';
+    document.getElementById('result-box').style.display = 'none';
+    document.getElementById('result-actions').style.display = 'none';
+    document.getElementById('paywall-box').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('result-area').style.display = 'block';
+  document.getElementById('loading-indicator').style.display = 'flex';
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('result-actions').style.display = 'none';
+  document.getElementById('paywall-box').style.display = 'none';
+  document.getElementById('copy-feedback').style.display = 'none';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: getPrompt() }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'Błąd generacji.';
+
+    document.getElementById('loading-indicator').style.display = 'none';
+    document.getElementById('result-box').style.display = 'block';
+    document.getElementById('result-box').textContent = text;
+    document.getElementById('result-actions').style.display = 'flex';
+
+    usageCount++;
+    const toolNames = { post: 'Post social media', opis: 'Opis produktu', opinia: 'Odpowiedź na opinię', email: 'Mail do klienta' };
+    history.unshift({ type: toolNames[selectedTool], date: 'teraz', preview: text.slice(0, 80) + '...' });
+    renderHistory();
+    updateUsageUI();
+  } catch(e) {
+    document.getElementById('loading-indicator').style.display = 'none';
+    document.getElementById('result-box').style.display = 'block';
+    document.getElementById('result-box').textContent = 'Wystąpił błąd połączenia. Spróbuj ponownie.';
+    document.getElementById('result-actions').style.display = 'flex';
+  }
+}
+
+function copyResult() {
+  const text = document.getElementById('result-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copy-feedback').style.display = 'block';
+    setTimeout(() => document.getElementById('copy-feedback').style.display = 'none', 2000);
+  });
+}
+
+function upgradeToPro() {
+  isPro = true;
+  document.getElementById('plan-badge').textContent = '✦ Pro';
+  document.getElementById('plan-badge').className = 'badge pro';
+  document.getElementById('upgrade-box').style.display = 'none';
+  document.getElementById('pro-box').style.display = 'block';
+  document.getElementById('stat-plan-name').textContent = 'Pro';
+  updateUsageUI();
+  switchTab('generator');
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!history.length) { list.innerHTML = '<div style="color:var(--color-text-secondary);font-size:14px;padding:1rem 0">Brak historii generacji.</div>'; return; }
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div class="history-meta">
+        <span class="history-type">${h.type}</span>
+        <span class="history-date">${h.date}</span>
+      </div>
+      <div class="history-preview">${h.preview}</div>
+    </div>
+  `).join('');
+}
+</script>
