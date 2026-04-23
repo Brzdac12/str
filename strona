@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Copylo — Profesjonalne teksty AI dla firm</title>
+<meta name="description" content="Posty na social media, opisy produktów, odpowiedzi na Google, maile — gotowe w 10 sekund."/>
+<style>
+  /* ============================================================
+     COPYLO — plik gotowy do wgrania na GitHub + Vercel
+     
+     ZANIM URUCHOMISZ — uzupełnij 2 rzeczy:
+     1. Znajdź "TWOJ_KLUCZ_API" i wklej swój klucz Anthropic
+     2. Znajdź "TWOJ_LINK_STRIPE" i wklej link płatności ze Stripe
+  ============================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #f0efe9;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #9a9990;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --accent: #2c2c2a;
+    --accent-light: #f1efe8;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg2: #232320;
+      --bg3: #2c2c28;
+      --text: #f1efe8;
+      --text2: #9a9990;
+      --text3: #636260;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --accent: #e8e6df;
+      --accent-light: #2c2c28;
+    }
+    .btn-dark { background: #e8e6df !important; color: #1a1a18 !important; }
+    .logo-mark { background: #e8e6df !important; }
+    .logo-mark svg { stroke: #1a1a18 !important; }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .logo-mark {
+    width: 30px; height: 30px;
+    background: #2c2c2a;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-mark svg { width: 17px; height: 17px; stroke: #f1efe8; fill: none; stroke-width: 1.5; stroke-linecap: round; }
+  .logo-name { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -0.4px; }
+  .logo-name span { color: var(--text3); font-weight: 400; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+  .pill {
+    font-size: 12px; padding: 5px 12px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .pill:hover { background: var(--bg3); }
+  .pill.pro { background: var(--accent-light); color: var(--accent); border-color: var(--border2); font-weight: 500; }
+
+  /* SCREEN SYSTEM */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 1.5rem 3rem;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.8px;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .hero p {
+    font-size: 16px;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 420px;
+    margin: 0 auto 2.5rem;
+  }
+
+  /* FEATURES STRIP */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    padding: 0 1.5rem 2.5rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .feat {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+  }
+  .feat-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feat-icon svg { width: 16px; height: 16px; stroke: var(--text2); fill: none; stroke-width: 1.5; stroke-linecap: round; }
+  .feat-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .feat-desc { font-size: 11px; color: var(--text3); line-height: 1.4; }
+
+  /* PLANS */
+  .plans {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 1.5rem 1rem;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  @media (max-width: 420px) { .plans { grid-template-columns: 1fr; } }
+  .plan {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .plan.featured { border: 1.5px solid var(--accent); }
+  .plan-tag {
+    font-size: 11px; padding: 2px 9px;
+    border-radius: 20px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 0.5px solid var(--border2);
+    display: inline-block;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .plan-name { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+  .plan-price { font-size: 30px; font-weight: 600; color: var(--text); letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
+  .plan-price sup { font-size: 15px; font-weight: 400; vertical-align: super; letter-spacing: 0; }
+  .plan-price sub { font-size: 13px; font-weight: 400; color: var(--text3); letter-spacing: 0; }
+  .plan-features { list-style: none; margin: 14px 0 18px; }
+  .plan-features li {
+    font-size: 13px; color: var(--text2);
+    padding: 4px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chk {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chk.on { background: var(--accent); }
+  .chk.on::after { content: ''; width: 5px; height: 5px; background: var(--bg); border-radius: 50%; }
+  .chk.off { background: var(--border2); border-radius: 50%; }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text);
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn-dark {
+    background: #2c2c2a;
+    color: #f1efe8;
+    border-color: #2c2c2a;
+  }
+  .btn-dark:hover { background: #444441; }
+  .btn-sm {
+    padding: 8px 16px;
+    width: auto;
+    font-size: 13px;
+  }
+
+  .land-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+    padding: 1rem 0 3rem;
+  }
+
+  /* APP */
+  .app-wrap { padding: 1.25rem 1.5rem; max-width: 680px; margin: 0 auto; }
+  .tabs {
+    display: flex;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .tab {
+    padding: 9px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -0.5px;
+    transition: all .15s;
+    font-family: inherit;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 500; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* TOOL CARDS */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 360px) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tool-card:hover { border-color: var(--border2); }
+  .tool-card.selected { border-color: var(--accent); background: var(--bg2); }
+  .tool-icon-wrap {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .15s;
+  }
+  .tool-card.selected .tool-icon-wrap { background: #2c2c2a; border-color: #2c2c2a; }
+  .tool-icon-wrap svg { width: 15px; height: 15px; stroke: var(--text2); fill: none; stroke-width: 1.5; stroke-linecap: round; transition: stroke .15s; }
+  .tool-card.selected .tool-icon-wrap svg { stroke: #f1efe8; }
+  .tool-info-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .tool-info-desc { font-size: 11px; color: var(--text3); }
+
+  /* FORMS */
+  .form-group { margin-bottom: 1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+  label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 4px; }
+  input[type=text], textarea, select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { min-height: 80px; resize: vertical; }
+  select { cursor: pointer; }
+
+  /* USAGE */
+  .usage-wrap { margin: 1rem 0 0; }
+  .usage-label { font-size: 12px; color: var(--text3); margin-bottom: 5px; }
+  .usage-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .usage-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+
+  /* RESULT */
+  .result-wrap { margin-top: 1rem; }
+  .loading {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text3); font-size: 13px; padding: .75rem 0;
+  }
+  .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text3);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: .3; transform: scale(.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+  .result-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    min-height: 80px;
+  }
+  .result-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .copy-ok { font-size: 12px; color: #3b6d11; margin-top: 4px; display: none; }
+
+  /* PAYWALL */
+  .paywall-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .paywall-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  .paywall-card p { font-size: 14px; color: var(--text2); margin-bottom: 1.25rem; line-height: 1.6; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+  .stat { background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -0.5px; }
+  .stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* HISTORY */
+  .hist-item {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .hist-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .hist-badge {
+    font-size: 11px; padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 0.5px solid var(--border);
+    font-weight: 500;
+  }
+  .hist-date { font-size: 11px; color: var(--text3); }
+  .hist-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  .empty { font-size: 14px; color: var(--text3); padding: 2rem 0; text-align: center; }
+
+  /* PRO BOX */
+  .pro-active {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .pro-active h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .pro-active p { font-size: 13px; color: var(--text2); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-size: 12px;
+    color: var(--text3);
+    border-top: 0.5px solid var(--border);
+    margin-top: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== LANDING ===================== -->
+<div id="s-land" class="screen active">
+  <nav class="topbar">
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h7M3 12h5"/><circle cx="13" cy="11" r="2.5"/><path d="M15 13l1 1"/></svg>
+      </div>
+      <span class="logo-name">Copy<span>lo</span></span>
+    </a>
+    <div class="topbar-right">
+      <a href="#cennik" class="pill">Cennik</a>
+      <button class="pill btn-dark" onclick="enterApp('free')" style="border-radius:20px">Wypróbuj →</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">AI dla małych firm w Polsce</div>
+    <h1>Profesjonalne teksty<br>w 10 sekund</h1>
+    <p>Posty na social media, opisy produktów, odpowiedzi na Google, maile do klientów — gotowe do użycia, napisane po polsku.</p>
+    <button class="btn btn-dark" style="width:auto;padding:12px 28px;font-size:15px;border-radius:var(--radius-sm)" onclick="enterApp('free')">
+      Zacznij za darmo →
+    </button>
+  </section>
+
+  <section class="features">
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>
+      </div>
+      <div class="feat-name">Social media</div>
+      <div class="feat-desc">Facebook, Instagram, LinkedIn</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/><path d="M5 6h6M5 9h3"/></svg>
+      </div>
+      <div class="feat-name">Opisy produktów</div>
+      <div class="feat-desc">Sklep, oferta, katalog</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 16 16"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5 6.5 5z"/></svg>
+      </div>
+      <div class="feat-name">Opinie Google</div>
+      <div class="feat-desc">Profesjonalne odpowiedzi</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M2 5l6 5 6-5"/></svg>
+      </div>
+      <div class="feat-name">Maile do klientów</div>
+      <div class="feat-desc">Oferty, podziękowania</div>
+    </div>
+  </section>
+
+  <section id="cennik" style="padding:1rem 0 0">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem">Cennik</div>
+      <div style="font-size:22px;font-weight:600;letter-spacing:-0.5px">Prosty i przejrzysty</div>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>zł</sup>0<sub> /mies.</sub></div>
+        <ul class="plan-features">
+          <li><span class="chk on"></span>5 generacji miesięcznie</li>
+          <li><span class="chk on"></span>Posty social media</li>
+          <li><span class="chk off"></span>Opisy produktów</li>
+          <li><span class="chk off"></span>Odpowiedzi Google</li>
+          <li><span class="chk off"></span>Historia generacji</li>
+        </ul>
+        <button class="btn" onclick="enterApp('free')">Zacznij za darmo</button>
+      </div>
+      <div class="plan featured">
+        <div class="plan-tag">Najpopularniejszy</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>zł</sup>20<sub> /mies.</sub></div>
+        <ul class="plan-features">
+          <li><span class="chk on"></span>Bez limitu generacji</li>
+          <li><span class="chk on"></span>Posty social media</li>
+          <li><span class="chk on"></span>Opisy produktów</li>
+          <li><span class="chk on"></span>Odpowiedzi Google</li>
+          <li><span class="chk on"></span>Historia generacji</li>
+        </ul>
+        <!-- 
+          ↓↓↓ KROK 2: Wklej tutaj swój link Stripe ↓↓↓
+          Zamień "TWOJ_LINK_STRIPE" na link z panelu Stripe
+          Przykład: https://buy.stripe.com/abcdef123456
+        -->
+        <a href="TWOJ_LINK_STRIPE" class="btn btn-dark" style="display:block;text-align:center;text-decoration:none;padding:11px;border-radius:var(--radius-sm)">
+          Kup Pro — 20 zł/mies.
+        </a>
+      </div>
+    </div>
+    <p class="land-note">Płatność przez Stripe · Anuluj w dowolnym momencie · Bez umów</p>
+  </section>
+
+  <footer>
+    &copy; 2025 Copylo · Wszelkie prawa zastrzeżone
+  </footer>
+</div>
+
+<!-- ===================== APLIKACJA ===================== -->
+<div id="s-app" class="screen">
+  <nav class="topbar">
+    <a href="#" class="logo" onclick="backToLand();return false;">
+      <div class="logo-mark">
+        <svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h7M3 12h5"/><circle cx="13" cy="11" r="2.5"/><path d="M15 13l1 1"/></svg>
+      </div>
+      <span class="logo-name">Copy<span>lo</span></span>
+    </a>
+    <div class="topbar-right">
+      <span class="pill" id="plan-pill">Starter</span>
+      <button class="pill" onclick="backToLand()" style="font-family:inherit;cursor:pointer">← Wyjdź</button>
+    </div>
+  </nav>
+
+  <div class="app-wrap">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('gen')">Generator</button>
+      <button class="tab" onclick="switchTab('hist')">Historia</button>
+      <button class="tab" onclick="switchTab('konto')">Konto</button>
+    </div>
+
+    <!-- GENERATOR -->
+    <div id="pane-gen" class="tab-pane active">
+      <div class="tool-grid">
+        <div class="tool-card selected" onclick="pickTool(this,'post')">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>
+          </div>
+          <div>
+            <div class="tool-info-name">Post social media</div>
+            <div class="tool-info-desc">FB, Instagram, LinkedIn</div>
+          </div>
+        </div>
+        <div class="tool-card" onclick="pickTool(this,'opis')">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2z"/><path d="M5 6h6M5 9h3"/></svg>
+          </div>
+          <div>
+            <div class="tool-info-name">Opis produktu</div>
+            <div class="tool-info-desc">Sklep, oferta</div>
+          </div>
+        </div>
+        <div class="tool-card" onclick="pickTool(this,'opinia')">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 16 16"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5 6.5 5z"/></svg>
+          </div>
+          <div>
+            <div class="tool-info-name">Odpowiedź na opinię</div>
+            <div class="tool-info-desc">Google, Allegro</div>
+          </div>
+        </div>
+        <div class="tool-card" onclick="pickTool(this,'email')">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M2 5l6 5 6-5"/></svg>
+          </div>
+          <div>
+            <div class="tool-info-name">Mail do klienta</div>
+            <div class="tool-info-desc">Oferta, podziękowanie</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARZE -->
+      <div id="form-post">
+        <div class="form-row">
+          <div>
+            <label>Branża firmy</label>
+            <input type="text" id="p-branza" placeholder="np. kawiarnia, sklep odzieżowy"/>
+          </div>
+          <div>
+            <label>Ton komunikacji</label>
+            <select id="p-ton">
+              <option>Profesjonalny</option>
+              <option>Przyjazny i luźny</option>
+              <option>Energetyczny</option>
+              <option>Elegancki</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>O czym ma być post?</label>
+          <textarea id="p-temat" placeholder="np. promocja weekendowa -20% na kawy, nowe menu letnie, otwarcie nowego lokalu..."></textarea>
+        </div>
+      </div>
+
+      <div id="form-opis" style="display:none">
+        <div class="form-row">
+          <div>
+            <label>Nazwa produktu</label>
+            <input type="text" id="o-nazwa" placeholder="np. Bluza z kapturem"/>
+          </div>
+          <div>
+            <label>Cena</label>
+            <input type="text" id="o-cena" placeholder="np. 149 zł"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cechy produktu</label>
+          <textarea id="o-cechy" placeholder="np. 100% bawełna, dostępna w 5 kolorach, idealna na chłodne dni..."></textarea>
+        </div>
+      </div>
+
+      <div id="form-opinia" style="display:none">
+        <div class="form-group">
+          <label>Treść opinii klienta</label>
+          <textarea id="op-tresc" placeholder="np. Obsługa super, ale kawa była zimna. Ogólnie ok ale liczę na poprawę."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Ton odpowiedzi</label>
+          <select id="op-ton">
+            <option>Przepraszający i empatyczny</option>
+            <option>Spokojny i rzeczowy</option>
+            <option>Ciepły i pozytywny</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="form-email" style="display:none">
+        <div class="form-row">
+          <div>
+            <label>Cel maila</label>
+            <select id="e-cel">
+              <option>Oferta handlowa</option>
+              <option>Podziękowanie za zakup</option>
+              <option>Przypomnienie o płatności</option>
+              <option>Odpowiedź na zapytanie</option>
+            </select>
+          </div>
+          <div>
+            <label>Imię/zwrot do odbiorcy</label>
+            <input type="text" id="e-imie" placeholder="np. Panie Marku"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Dodatkowe informacje</label>
+          <textarea id="e-info" placeholder="np. klient kupił zestaw mebli ogrodowych, chcemy zapytać o satysfakcję..."></textarea>
+        </div>
+      </div>
+
+      <div class="usage-wrap" id="usage-wrap">
+        <div class="usage-label" id="usage-lbl">Użyto 0 z 5 generacji</div>
+        <div class="usage-track"><div class="usage-fill" id="usage-fill" style="width:0%"></div></div>
+      </div>
+
+      <button class="btn btn-dark" style="margin-top:1rem;width:100%" onclick="generate()">
+        Generuj tekst →
+      </button>
+
+      <div class="result-wrap" id="result-wrap" style="display:none">
+        <div class="loading" id="loading">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span>Copylo pisze...</span>
+        </div>
+        <div class="result-box" id="result-box" style="display:none"></div>
+        <div class="result-actions" id="result-actions" style="display:none">
+          <button class="btn btn-sm" onclick="copyText()">Kopiuj</button>
+          <button class="btn btn-sm" onclick="generate()">Generuj ponownie</button>
+        </div>
+        <div class="copy-ok" id="copy-ok">Skopiowano do schowka!</div>
+        <div class="paywall-card" id="paywall" style="display:none">
+          <h3>Limit wyczerpany</h3>
+          <p>W planie Starter masz 5 generacji miesięcznie.<br>Przejdź na Pro żeby pisać bez ograniczeń.</p>
+          <!--
+            ↓↓↓ KROK 2: Tu też wklej swój link Stripe ↓↓↓
+          -->
+          <a href="TWOJ_LINK_STRIPE" class="btn btn-dark" style="display:block;text-align:center;text-decoration:none;padding:11px;border-radius:var(--radius-sm)">
+            Kup Copylo Pro — 20 zł/mies.
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIA -->
+    <div id="pane-hist" class="tab-pane">
+      <div id="hist-list"><div class="empty">Brak historii generacji. Zacznij generować teksty!</div></div>
+    </div>
+
+    <!-- KONTO -->
+    <div id="pane-konto" class="tab-pane">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val" id="s-gen">0</div>
+          <div class="stat-lbl">Generacji łącznie</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="s-plan">Starter</div>
+          <div class="stat-lbl">Aktywny plan</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="s-left">5</div>
+          <div class="stat-lbl">Pozostało</div>
+        </div>
+      </div>
+      <div id="konto-upgrade">
+        <div class="paywall-card">
+          <h3>Przejdź na Copylo Pro</h3>
+          <p>Bez limitu generacji, wszystkie narzędzia, pełna historia. Anuluj kiedy chcesz — bez zobowiązań.</p>
+          <!--
+            ↓↓↓ KROK 2: Tu też wklej swój link Stripe ↓↓↓
+          -->
+          <a href="TWOJ_LINK_STRIPE" class="btn btn-dark" style="display:block;text-align:center;text-decoration:none;padding:11px;border-radius:var(--radius-sm)">
+            Kup Pro — 20 zł/mies.
+          </a>
+        </div>
+      </div>
+      <div id="konto-pro" style="display:none">
+        <div class="pro-active">
+          <h3>Copylo Pro aktywny</h3>
+          <p>Bez limitu generacji. Plan odnawia się automatycznie co miesiąc.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // KROK 1: Wklej swój klucz API Anthropic poniżej
+  // Zamień "TWOJ_KLUCZ_API" na klucz ze strony console.anthropic.com
+  // Przykład: "sk-ant-api03-abcdef..."
+  // UWAGA: Po uruchomieniu strony rozważ przeniesienie klucza
+  // na serwer (backend), żeby nie był widoczny publicznie.
+  // ============================================================
+  const ANTHROPIC_API_KEY = "TWOJ_KLUCZ_API";
+
+  let isPro = false;
+  let used = 0;
+  const maxFree = 5;
+  let curTool = 'post';
+  let history = [];
+  const toolNames = {
+    post: 'Post social media',
+    opis: 'Opis produktu',
+    opinia: 'Odpowiedź na opinię',
+    email: 'Mail do klienta'
+  };
+
+  function enterApp(plan) {
+    isPro = plan === 'pro';
+    document.getElementById('s-land').classList.remove('active');
+    document.getElementById('s-app').classList.add('active');
+    window.scrollTo(0, 0);
+    const pill = document.getElementById('plan-pill');
+    pill.textContent = isPro ? 'Pro' : 'Starter';
+    pill.className = isPro ? 'pill pro' : 'pill';
+    updateUI();
+    renderHist();
+    document.getElementById('konto-upgrade').style.display = isPro ? 'none' : 'block';
+    document.getElementById('konto-pro').style.display = isPro ? 'block' : 'none';
+    document.getElementById('s-plan').textContent = isPro ? 'Pro' : 'Starter';
+  }
+
+  function backToLand() {
+    document.getElementById('s-app').classList.remove('active');
+    document.getElementById('s-land').classList.add('active');
+    document.getElementById('result-wrap').style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+
+  function switchTab(t) {
+    ['gen', 'hist', 'konto'].forEach((x, i) => {
+      document.getElementById('pane-' + x).className = 'tab-pane' + (x === t ? ' active' : '');
+      document.querySelectorAll('.tab')[i].className = 'tab' + (x === t ? ' active' : '');
+    });
+  }
+
+  function pickTool(el, t) {
+    document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    curTool = t;
+    ['post', 'opis', 'opinia', 'email'].forEach(x => {
+      document.getElementById('form-' + x).style.display = x === t ? 'block' : 'none';
+    });
+    document.getElementById('result-wrap').style.display = 'none';
+  }
+
+  function updateUI() {
+    const pct = isPro ? 100 : Math.round(Math.min((used / maxFree) * 100, 100));
+    document.getElementById('usage-fill').style.width = pct + '%';
+    document.getElementById('usage-lbl').textContent = isPro
+      ? 'Plan Pro — bez limitu generacji'
+      : `Użyto ${used} z ${maxFree} generacji`;
+    document.getElementById('s-gen').textContent = used;
+    document.getElementById('s-left').textContent = isPro ? '∞' : Math.max(0, maxFree - used);
+  }
+
+  function getPrompt() {
+    if (curTool === 'post') {
+      const b = document.getElementById('p-branza').value || 'firma';
+      const t = document.getElementById('p-ton').value;
+      const tm = document.getElementById('p-temat').value || 'ogólna promocja';
+      return `Napisz angażujący post na Facebook/Instagram dla firmy z branży: ${b}. Ton: ${t}. Temat: ${tm}. Post po polsku, max 3 akapity, dodaj 3-5 emoji i 3-5 hashtagów na końcu. Odpowiedz tylko treścią posta, bez żadnych komentarzy.`;
+    } else if (curTool === 'opis') {
+      const n = document.getElementById('o-nazwa').value || 'produkt';
+      const c = document.getElementById('o-cena').value;
+      const f = document.getElementById('o-cechy').value;
+      return `Napisz profesjonalny opis produktu "${n}"${c ? ` w cenie ${c}` : ''}.${f ? ' Cechy: ' + f : ''} Opis po polsku, ok 80-100 słów, skupiony na korzyściach dla klienta. Odpowiedz tylko treścią opisu, bez komentarzy.`;
+    } else if (curTool === 'opinia') {
+      const tr = document.getElementById('op-tresc').value || 'Dobra obsługa, polecam.';
+      const t = document.getElementById('op-ton').value;
+      return `Napisz odpowiedź na opinię klienta w Google. Opinia: "${tr}". Ton: ${t}. Po polsku, 50-70 słów, naturalna i profesjonalna. Odpowiedz tylko treścią odpowiedzi, bez komentarzy.`;
+    } else {
+      const cel = document.getElementById('e-cel').value;
+      const im = document.getElementById('e-imie').value || 'Szanowny Kliencie';
+      const inf = document.getElementById('e-info').value;
+      return `Napisz profesjonalny email do klienta. Cel: ${cel}. Zwrot do odbiorcy: ${im}. Kontekst: ${inf || 'brak dodatkowych informacji'}. Po polsku, krótki i konkretny, z uprzejmym pozdrowieniem. Odpowiedz tylko treścią emaila, bez komentarzy.`;
+    }
+  }
+
+  async function generate() {
+    if (!isPro && used >= maxFree) {
+      document.getElementById('result-wrap').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('result-box').style.display = 'none';
+      document.getElementById('result-actions').style.display = 'none';
+      document.getElementById('paywall').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('result-wrap').style.display = 'block';
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('result-box').style.display = 'none';
+    document.getElementById('result-actions').style.display = 'none';
+    document.getElementById('paywall').style.display = 'none';
+    document.getElementById('copy-ok').style.display = 'none';
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: getPrompt() }]
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error.message || 'Błąd API');
+      }
+
+      const txt = data.content?.map(b => b.text || '').join('') || 'Błąd — spróbuj ponownie.';
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('result-box').style.display = 'block';
+      document.getElementById('result-box').textContent = txt;
+      document.getElementById('result-actions').style.display = 'flex';
+
+      used++;
+      history.unshift({
+        type: toolNames[curTool],
+        date: new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
+        preview: txt.slice(0, 100) + (txt.length > 100 ? '…' : '')
+      });
+      renderHist();
+      updateUI();
+
+    } catch (e) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('result-box').style.display = 'block';
+      document.getElementById('result-box').textContent =
+        'Błąd połączenia z AI. Sprawdź czy klucz API jest poprawnie wklejony w pliku index.html i spróbuj ponownie.';
+      document.getElementById('result-actions').style.display = 'flex';
+    }
+  }
+
+  function copyText() {
+    const txt = document.getElementById('result-box').textContent;
+    navigator.clipboard.writeText(txt).then(() => {
+      document.getElementById('copy-ok').style.display = 'block';
+      setTimeout(() => document.getElementById('copy-ok').style.display = 'none', 2500);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      document.getElementById('copy-ok').style.display = 'block';
+      setTimeout(() => document.getElementById('copy-ok').style.display = 'none', 2500);
+    });
+  }
+
+  function renderHist() {
+    const el = document.getElementById('hist-list');
+    if (!history.length) {
+      el.innerHTML = '<div class="empty">Brak historii generacji. Zacznij generować teksty!</div>';
+      return;
+    }
+    el.innerHTML = history.map(h => `
+      <div class="hist-item">
+        <div class="hist-top">
+          <span class="hist-badge">${h.type}</span>
+          <span class="hist-date">${h.date}</span>
+        </div>
+        <div class="hist-text">${h.preview}</div>
+      </div>
+    `).join('');
+  }
+</script>
+</body>
+</html>
